@@ -72,10 +72,21 @@ public class Robot extends TimedRobot {
     drivetrain.initializeOffsets();
     Timer.delay(OFFSET_DELAY);
 
-    balance.BalanceInit();
+    //balance.BalanceInit();
     //drive.DriveStraight(60.0, 0.2, 0.25, 10.0);
-    drive.DriveStraight(-70.0, 0.2, -0.25, 10.0);
+    drive.DriveStraight(-70.0, 0.2, -0.25, 0.0, 10.0);
+    //drive.DriveStraight(40, 0.2, 0.25, 90, 10.0); //translation test
+    //Path6();
     drive.StopDriving();
+    //balance.StartBalancing();
+  }
+
+  public void Path6() { //See slide 6 (2637 Charged Up autonomous Paths in Google Drive) 
+    drive.DriveStraight(-40, 0.2, -0.25, 0.0, 2.0);
+    drive.DriveStraight(224, 0.2, 0.3, 0.0, 8.0);
+    drive.DriveStraight(-224, 0.2, -0.3, 0.0, 8.0);
+    drive.DriveStraight(60, 0.2, 0.25, 90.0, 3.0);
+    drive.DriveStraight(65, 0.2, 0.23, 0.0, 4.0);
     balance.StartBalancing();
   }
 

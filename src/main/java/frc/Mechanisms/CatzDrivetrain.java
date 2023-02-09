@@ -8,7 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 public class CatzDrivetrain 
 {
-    private final CatzSwerveModule RT_FRNT_MODULE;
+    private final CatzSwerveModule RT_FRNT_MODULE; // CT 02/08
     private final CatzSwerveModule RT_BACK_MODULE;
     private final CatzSwerveModule LT_FRNT_MODULE;
     private final CatzSwerveModule LT_BACK_MODULE;
@@ -104,10 +104,10 @@ public class CatzDrivetrain
         RT_FRNT_MODULE.setWheelAngle(-135.0, notFieldRelative);
         RT_BACK_MODULE.setWheelAngle(135.0, notFieldRelative);
 
-        LT_FRNT_MODULE.setDrivePower(ControlMode.PercentOutput, pwr);
-        LT_BACK_MODULE.setDrivePower(ControlMode.PercentOutput, pwr);
-        RT_FRNT_MODULE.setDrivePower(ControlMode.PercentOutput, pwr);
-        RT_BACK_MODULE.setDrivePower(ControlMode.PercentOutput, pwr);
+        LT_FRNT_MODULE.setDrivePower(pwr);
+        LT_BACK_MODULE.setDrivePower(pwr);
+        RT_FRNT_MODULE.setDrivePower(pwr);
+        RT_BACK_MODULE.setDrivePower(pwr);
     }
 
     public void translateTurn(double joystickAngle, double translatePower, double turnPercentage)
@@ -159,10 +159,10 @@ public class CatzDrivetrain
         }
 
 
-        LT_FRNT_MODULE.setDrivePower(ControlMode.PercentOutput, translatePower);
-        LT_BACK_MODULE.setDrivePower(ControlMode.PercentOutput, translatePower);
-        RT_FRNT_MODULE.setDrivePower(ControlMode.PercentOutput, translatePower);
-        RT_BACK_MODULE.setDrivePower(ControlMode.PercentOutput, translatePower);
+        LT_FRNT_MODULE.setDrivePower(translatePower);
+        LT_BACK_MODULE.setDrivePower(translatePower);
+        RT_FRNT_MODULE.setDrivePower(translatePower);
+        RT_BACK_MODULE.setDrivePower(translatePower);
     }
 
     public double closestAngle(double startAngle, double targetAngle)
@@ -209,10 +209,10 @@ public class CatzDrivetrain
 
     public void setDrivePower(double pwr)
     {
-        LT_FRNT_MODULE.setDrivePower(ControlMode.PercentOutput, pwr);
-        LT_BACK_MODULE.setDrivePower(ControlMode.PercentOutput, pwr);
-        RT_FRNT_MODULE.setDrivePower(ControlMode.PercentOutput, pwr);
-        RT_BACK_MODULE.setDrivePower(ControlMode.PercentOutput, pwr);
+        LT_FRNT_MODULE.setDrivePower(pwr);
+        LT_BACK_MODULE.setDrivePower(pwr);
+        RT_FRNT_MODULE.setDrivePower(pwr);
+        RT_BACK_MODULE.setDrivePower(pwr);
     }
 
     public void setBrakeMode()

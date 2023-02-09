@@ -2,6 +2,7 @@ package frc.Mechanisms;
 
 import frc.DataLogger.CatzLog;
 import frc.DataLogger.DataCollection;
+import frc.Mechanisms.CatzDrivetrain;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -55,8 +56,8 @@ public class Drive
     }
 
     public Drive() {}
-
-    public void DriveStraight(double distance, double decelDistance, double maxSpeed, double maxTime){ 
+                                                                                    //sets wheel angle
+    public void DriveStraight(double distance, double decelDistance, double maxSpeed, double wheelPos, double maxTime){ 
         System.out.println("drive");
 
         startDriving = true;
@@ -76,16 +77,17 @@ public class Drive
 
             distanceRemain = distance + (Robot.drivetrain.getAveragePosition() - distanceOffset) * DRVTRAIN_ENC_COUNTS_TO_INCH;
             targetPower = Clamp(MIN_POWER / Math.abs(maxSpeed), distanceRemain / distance / decelDistance, 1) * maxSpeed;
-            turnPower = Clamp(-1.0, ERROR_GAIN * currentError + RATE_GAIN * errorRate, 1.0);
-            Robot.drivetrain.translateTurn(0, targetPower, turnPower);
-
+            turnPower = Clamp(-1.0, - ERROR_GAIN * currentError - RATE_GAIN * errorRate, 1.0); //"-" in front of Error and Rate
+            Robot.drivetrain.translateTurn(wheelPos, targetPower, turnPower);
+            System.out.println(distanceRemain);
             Timer.delay(TIME_DELTA);
 
             prevTime = time;
             prevError = currentError;
 
             if(Robot.dataCollection.logDataID == DataCollection.LOG_ID_DRIVE && Robot.dataCollection.logDataValues){
-                data = new CatzLog(Robot.currentTime.get(), distanceRemain, distanceRemain / distance, currentError, errorRate, turnPower, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  
+                data = new CatzLog(Robot.currentTime.get(), distanceRemain, distanceRemain / distance, currentError, errorRate, turnPower, 
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  
                 Robot.dataCollection.logData.add(data);
             }
         }
@@ -94,6 +96,8 @@ public class Drive
 
         startDriving = false;
     }
+
+    
 
     public void StopDriving()
     {
