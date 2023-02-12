@@ -42,7 +42,7 @@ public class DataCollection
 
     private final String LOG_HDR_SWERVE_MOD = "time,target,lf-angle,lf-err,lf-flip-err,lb-angle,lb-err,lb-flip-err,rf-angle,rf-err,rf-flip-err,rb-angle,rb-err,rb-flip-err";
     private final String LOG_HDR_BALANCE    = "time,pitch,rate,power";
-    private final String LOG_HDR_DRIVE      = "time,distance,power,angle,rate,turn_power";
+    private final String LOG_HDR_DRIVE      = "time,d_rem,enc_pos,power,angle_err,angle,rate,turn_power";
     public String logStr;
 
     public static final SendableChooser<Integer> chosenDataID = new SendableChooser<>();

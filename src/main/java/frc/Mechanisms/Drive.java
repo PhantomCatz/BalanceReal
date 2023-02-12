@@ -13,14 +13,14 @@ public class Drive
     final double TIME_DELTA = 0.05;
 
     final double TALONFX_INTEGRATED_ENC_CNTS_PER_REV      = 2048.0;
-    final double DRVTRAIN_WHEEL_RADIUS                    = 2.0;
-    final double DRVTRAIN_WHEEL_CIRCUMFERENCE             = (2.0 * Math.PI * DRVTRAIN_WHEEL_RADIUS);
+    final double DRVTRAIN_WHEEL_DIAMETER                  = 4.0;
+    final double DRVTRAIN_WHEEL_CIRCUMFERENCE             = (Math.PI * DRVTRAIN_WHEEL_DIAMETER);
     final double DRVTRAIN_ENC_COUNTS_TO_INCH              = GEAR_RATIO * DRVTRAIN_WHEEL_CIRCUMFERENCE / TALONFX_INTEGRATED_ENC_CNTS_PER_REV;
 
     private double STOP_DISTANCE = 0.5;
     private double MIN_POWER = 0.1;
-    private double ERROR_GAIN = 0.1;
-    private double RATE_GAIN = 0.0;
+    private double ERROR_GAIN = 0.02;
+    private double RATE_GAIN = 0.01;
 
     private double distanceOffset = 0.0;
     private double distanceRemain = 0.0;
@@ -33,6 +33,7 @@ public class Drive
     private double time = 0.0;
     private double prevTime = -1.0; // no big initial rate
     private double errorRate = 0;
+    private Boolean backwards;
 
     private Timer timer = new Timer();
 
@@ -55,11 +56,16 @@ public class Drive
     }
 
     public Drive() {}
-
-    public void DriveStraight(double distance, double decelDistance, double maxSpeed, double maxTime){ 
-        System.out.println("drive");
-
+                                                                                    //sets wheel angle
+    public void DriveStraight(double distance, double decelDistance, double maxSpeed, double wheelPos, double maxTime){ 
         startDriving = true;
+
+        if(distance < 0){
+            backwards = true;
+        }
+        else{
+            backwards = false;
+        }
 
         distanceOffset = Robot.drivetrain.getAveragePosition();
         angleOffset = Robot.navX.getAngle(); // change for final 2/4 EL
@@ -68,24 +74,33 @@ public class Drive
         timer.reset();
         timer.start();
 
-        while(distanceRemain >= STOP_DISTANCE && startDriving && time < maxTime){
+        while(Math.abs(distanceRemain) >= STOP_DISTANCE && startDriving && time < maxTime){
             time = timer.get();
             currentAngle = Robot.navX.getAngle();
             currentError = angleOffset - currentAngle;
             errorRate = (currentError - prevError) / (time - prevTime);
 
             distanceRemain = distance + (Robot.drivetrain.getAveragePosition() - distanceOffset) * DRVTRAIN_ENC_COUNTS_TO_INCH;
-            targetPower = Clamp(MIN_POWER / Math.abs(maxSpeed), distanceRemain / distance / decelDistance, 1) * maxSpeed;
-            turnPower = Clamp(-1.0, ERROR_GAIN * currentError + RATE_GAIN * errorRate, 1.0);
-            Robot.drivetrain.translateTurn(0, targetPower, turnPower);
+            targetPower = Clamp(-1.0, distanceRemain / distance / decelDistance, 1.0) * maxSpeed;
+            turnPower = Clamp(-1.0, ERROR_GAIN * currentError + RATE_GAIN * errorRate, 1.0); //"-" in front of Error and Rate
+            
+            if(Math.abs(targetPower) < MIN_POWER){
+                targetPower = MIN_POWER * Math.signum(targetPower);
+            }
 
+            if(backwards){
+                turnPower = -turnPower;
+            }
+
+            Robot.drivetrain.translateTurn(wheelPos, targetPower, turnPower);
             Timer.delay(TIME_DELTA);
 
             prevTime = time;
             prevError = currentError;
 
             if(Robot.dataCollection.logDataID == DataCollection.LOG_ID_DRIVE && Robot.dataCollection.logDataValues){
-                data = new CatzLog(Robot.currentTime.get(), distanceRemain, distanceRemain / distance, currentError, errorRate, turnPower, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  
+                data = new CatzLog(Robot.currentTime.get(), distanceRemain, Robot.drivetrain.getAveragePosition(), targetPower, currentError, currentAngle, errorRate, turnPower, 
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  
                 Robot.dataCollection.logData.add(data);
             }
         }

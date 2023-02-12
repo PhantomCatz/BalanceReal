@@ -4,6 +4,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -12,7 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CatzSwerveModule
 {
-    private final WPI_TalonFX STEER_MOTOR;
+    private final CANSparkMax STEER_MOTOR;
     private final WPI_TalonFX DRIVE_MOTOR;
 
     private final int motorID;
@@ -41,22 +44,24 @@ public class CatzSwerveModule
     private final double  CURRENT_LIMIT_TIMEOUT_SECONDS = 0.5;
     private final boolean ENABLE_CURRENT_LIMIT          = true;
 
+    private final int     STEER_CURRENT_LIMIT_AMPS      = 30;
+
     public CatzSwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset)
     {
-        STEER_MOTOR = new WPI_TalonFX(steerMotorID);
+        STEER_MOTOR = new CANSparkMax(steerMotorID, MotorType.kBrushless);
         DRIVE_MOTOR = new WPI_TalonFX(driveMotorID);
 
-        STEER_MOTOR.configFactoryDefault();
+        STEER_MOTOR.restoreFactoryDefaults();
         DRIVE_MOTOR.configFactoryDefault();
 
         //Set current limit
         swerveModuleCurrentLimit = new SupplyCurrentLimitConfiguration(ENABLE_CURRENT_LIMIT, CURRENT_LIMIT_AMPS, CURRENT_LIMIT_TRIGGER_AMPS, CURRENT_LIMIT_TIMEOUT_SECONDS);
 
-        STEER_MOTOR.configSupplyCurrentLimit(swerveModuleCurrentLimit);
+        STEER_MOTOR.setSmartCurrentLimit(STEER_CURRENT_LIMIT_AMPS);
         DRIVE_MOTOR.configSupplyCurrentLimit(swerveModuleCurrentLimit);
 
+        STEER_MOTOR.setIdleMode(IdleMode.kCoast);
         DRIVE_MOTOR.setNeutralMode(NeutralMode.Brake);
-        STEER_MOTOR.setNeutralMode(NeutralMode.Coast);
         
         MagEncPWMInput = new DigitalInput(encoderDIOChannel);
         magEnc = new DutyCycleEncoder(MagEncPWMInput);
@@ -69,10 +74,14 @@ public class CatzSwerveModule
         motorID = steerMotorID;
     }
 
+    public void reverseDrive(Boolean reverse){
+        DRIVE_MOTOR.setInverted(reverse);
+    }
+
     public double getDriveMotorPosition(){
         return DRIVE_MOTOR.getSelectedSensorPosition();
     }
-
+    
     public void initializeOffset()
     {
         wheelOffset = getEncValue();
@@ -85,11 +94,11 @@ public class CatzSwerveModule
 
     public void setBrakeMode()
     {
-        STEER_MOTOR.setNeutralMode(NeutralMode.Brake);
+        STEER_MOTOR.setIdleMode(IdleMode.kBrake);
     }
     public void setCoastMode()
     {
-        STEER_MOTOR.setNeutralMode(NeutralMode.Coast);
+        STEER_MOTOR.setIdleMode(IdleMode.kCoast);
     }
 
     public double closestAngle(double startAngle, double targetAngle)
@@ -134,26 +143,36 @@ public class CatzSwerveModule
         }
 
         command = -command / (180 * kP); //scale down command to a range of -1 to 1
-        STEER_MOTOR.set(ControlMode.PercentOutput, command);
+        STEER_MOTOR.set(command);
     }
 
     public void setSteerPower(double pwr)
     {
-        STEER_MOTOR.set(ControlMode.PercentOutput, pwr);
+        STEER_MOTOR.set(pwr);
     }
 
-    public void setDrivePower(ControlMode mode, double pwr)
+    public void setDrivePower(double pwr)
     {
         if(driveDirectionFlipped == true)
         {
             pwr = -pwr;
         }
-        DRIVE_MOTOR.set(mode, -pwr);
+        DRIVE_MOTOR.set(ControlMode.PercentOutput, -pwr);
     }
     
     public double getEncValue()
     {
         return magEnc.get();
+    }
+
+    public double getDrvDistance()
+    {
+        return DRIVE_MOTOR.getSelectedSensorPosition();
+    }
+
+    public double getDrvVelocity()
+    {
+        return DRIVE_MOTOR.getSelectedSensorVelocity();
     }
     
     public double getAngle()
