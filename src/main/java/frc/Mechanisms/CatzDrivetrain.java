@@ -4,7 +4,6 @@ import frc.DataLogger.CatzLog;
 import frc.DataLogger.DataCollection;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.ctre.phoenix.motorcontrol.ControlMode;
 
 public class CatzDrivetrain 
 {
@@ -67,6 +66,13 @@ public class CatzDrivetrain
         LT_BACK_MODULE.initializeOffset();
         RT_FRNT_MODULE.initializeOffset();
         RT_BACK_MODULE.initializeOffset();
+    }
+
+    public void reverseAllDrive(Boolean reverse){
+        LT_FRNT_MODULE.reverseDrive(reverse);
+        LT_BACK_MODULE.reverseDrive(reverse);
+        RT_FRNT_MODULE.reverseDrive(reverse);
+        RT_BACK_MODULE.reverseDrive(reverse);
     }
 
     public void zeroGyro()

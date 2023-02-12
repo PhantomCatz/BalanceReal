@@ -21,9 +21,9 @@ public class Balance
 
     public CatzLog data;
 
-    public final double ANG_SLOWBAND = 8; 
+    public final double ANG_SLOWBAND = 10; 
     public final double ANG_GAIN = 0.01;
-    public final double RATE_GAIN = 0.005;
+    public final double RATE_GAIN = 0.025;
     public final double DRV_GAIN = 1;
     public final double MAX_POWER = 0.175;
     public final double TIME_DELTA = 0.1;

@@ -12,9 +12,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.DataLogger.CatzLog;
-import frc.DataLogger.DataCollection;
-import frc.robot.Robot;
 
 public class CatzSwerveModule
 {
@@ -75,6 +72,10 @@ public class CatzSwerveModule
 
         //for shuffleboard
         motorID = steerMotorID;
+    }
+
+    public void reverseDrive(Boolean reverse){
+        DRIVE_MOTOR.setInverted(reverse);
     }
 
     public double getDriveMotorPosition(){
